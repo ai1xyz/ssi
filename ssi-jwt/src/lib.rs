@@ -135,7 +135,7 @@ impl From<NumericDate> for DateTime<Utc> {
     fn from(nd: NumericDate) -> Self {
         let (whole_seconds, fractional_nanoseconds) =
             nd.into_whole_seconds_and_fractional_nanoseconds();
-        Utc.timestamp(whole_seconds, fractional_nanoseconds)
+        Utc.timestamp_opt(whole_seconds, fractional_nanoseconds).unwrap()
     }
 }
 
