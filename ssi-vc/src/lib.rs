@@ -1580,7 +1580,7 @@ impl Presentation {
         for holder_binding in self.holder_binding.iter().flatten() {
             match &holder_binding {
                 #[cfg(test)]
-                HolderBinding::ExampleHolderBinding2022 { to, from } => {
+                HolderBinding::ExampleHolderBinding2022 { to, from: _ } => {
                     // TODO: error if term does not expand to expected IRI
                     // TODO: check proof signed by binding.from
                     if self.holder.is_none() || Some(to) != self.holder.as_ref() {
