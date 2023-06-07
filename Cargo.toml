@@ -77,6 +77,7 @@ members = [
   "did-onion",
   "did-ion",
   "did-webkey",
+  "did-scraioauth",
   "vc-test",
   "did-test",
   "ssi-caips",
