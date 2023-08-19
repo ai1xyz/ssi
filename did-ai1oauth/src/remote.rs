@@ -24,7 +24,7 @@ pub(crate) async fn get_public_key(did: &str) -> Option<Vec<u8>> {
 }
 
 pub(crate) fn get_uri() -> String {
-    let did_resolver_uri = env::var("SCRAIOAUTH_DID_RESOLUTION_URI")
+    let did_resolver_uri = env::var("AI1OAUTH_DID_RESOLUTION_URI")
         .unwrap_or(DEFAULT_DID_RESOLUTION_URI.to_string());
 
     if did_resolver_uri.ends_with('/') { did_resolver_uri } else {

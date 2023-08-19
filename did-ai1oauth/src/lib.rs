@@ -21,15 +21,15 @@ use ssi_jwk::{Base64urlUInt, OctetParams, Params, JWK};
 
 mod remote;
 
-const DID_SCRAIOAUTH_ED25519_PREFIX: [u8; 2] = [0xed, 0x01];
-const DID_SCRAIOAUTH_SECP256K1_PREFIX: [u8; 2] = [0xe7, 0x01];
-const DID_SCRAIOAUTH_BLS12381_G2_PREFIX: [u8; 2] = [0xeb, 0x01];
-const DID_SCRAIOAUTH_P256_PREFIX: [u8; 2] = [0x80, 0x24];
-const DID_SCRAIOAUTH_P384_PREFIX: [u8; 2] = [0x81, 0x24];
-const DID_SCRAIOAUTH_RSA_PREFIX: [u8; 2] = [0x85, 0x24];
+const DID_AI1OAUTH_ED25519_PREFIX: [u8; 2] = [0xed, 0x01];
+const DID_AI1OAUTH_SECP256K1_PREFIX: [u8; 2] = [0xe7, 0x01];
+const DID_AI1OAUTH_BLS12381_G2_PREFIX: [u8; 2] = [0xeb, 0x01];
+const DID_AI1OAUTH_P256_PREFIX: [u8; 2] = [0x80, 0x24];
+const DID_AI1OAUTH_P384_PREFIX: [u8; 2] = [0x81, 0x24];
+const DID_AI1OAUTH_RSA_PREFIX: [u8; 2] = [0x85, 0x24];
 
 #[derive(Error, Debug)]
-pub enum DIDScraiOAuthError {
+pub enum DIDAi1OAuthError {
     #[error("Unsupported key type")]
     UnsupportedKeyType,
     #[error("Unsupported curve: {0}")]
@@ -38,11 +38,11 @@ pub enum DIDScraiOAuthError {
     UnsupportedSource,
 }
 
-pub struct DIDScraiOAuth;
+pub struct DIDAi1OAuth;
 
 #[cfg_attr(target_arch = "wasm32", async_trait(?Send))]
 #[cfg_attr(not(target_arch = "wasm32"), async_trait)]
-impl DIDResolver for DIDScraiOAuth {
+impl DIDResolver for DIDAi1OAuth {
     async fn resolve(
         &self,
         did: &str,
@@ -78,7 +78,7 @@ impl DIDResolver for DIDScraiOAuth {
             }),
         );
 
-        let jwk = if pk_bytes[0] == DID_SCRAIOAUTH_ED25519_PREFIX[0] && pk_bytes[1] == DID_SCRAIOAUTH_ED25519_PREFIX[1] {
+        let jwk = if pk_bytes[0] == DID_AI1OAUTH_ED25519_PREFIX[0] && pk_bytes[1] == DID_AI1OAUTH_ED25519_PREFIX[1] {
             if pk_bytes.len() - 2 != 32 {
                 return (
                     ResolutionMetadata {
@@ -107,7 +107,7 @@ impl DIDResolver for DIDScraiOAuth {
                 x509_thumbprint_sha1: None,
                 x509_thumbprint_sha256: None,
             }
-        } else if pk_bytes[0] == DID_SCRAIOAUTH_SECP256K1_PREFIX[0] && pk_bytes[1] == DID_SCRAIOAUTH_SECP256K1_PREFIX[1] {
+        } else if pk_bytes[0] == DID_AI1OAUTH_SECP256K1_PREFIX[0] && pk_bytes[1] == DID_AI1OAUTH_SECP256K1_PREFIX[1] {
             if pk_bytes.len() - 2 != 33 {
                 return (
                     ResolutionMetadata::from_error(ERROR_INVALID_DID),
@@ -131,7 +131,7 @@ impl DIDResolver for DIDScraiOAuth {
                 None,
                 None,
             );
-        } else if pk_bytes[0] == DID_SCRAIOAUTH_P256_PREFIX[0] && pk_bytes[1] == DID_SCRAIOAUTH_P256_PREFIX[1] {
+        } else if pk_bytes[0] == DID_AI1OAUTH_P256_PREFIX[0] && pk_bytes[1] == DID_AI1OAUTH_P256_PREFIX[1] {
             #[cfg(feature = "secp256r1")]
             match p256_parse(&pk_bytes[2..]) {
                 Ok(jwk) => {
@@ -148,7 +148,7 @@ impl DIDResolver for DIDScraiOAuth {
                 None,
                 None,
             );
-        } else if pk_bytes[0] == DID_SCRAIOAUTH_P384_PREFIX[0] && pk_bytes[1] == DID_SCRAIOAUTH_P384_PREFIX[1] {
+        } else if pk_bytes[0] == DID_AI1OAUTH_P384_PREFIX[0] && pk_bytes[1] == DID_AI1OAUTH_P384_PREFIX[1] {
             #[cfg(feature = "secp384r1")]
             match ssi_jwk::p384_parse(&pk_bytes[2..]) {
                 Ok(jwk) => {
@@ -164,7 +164,7 @@ impl DIDResolver for DIDScraiOAuth {
                 None,
                 None,
             );
-        } else if pk_bytes[0] == DID_SCRAIOAUTH_RSA_PREFIX[0] && pk_bytes[1] == DID_SCRAIOAUTH_RSA_PREFIX[1] {
+        } else if pk_bytes[0] == DID_AI1OAUTH_RSA_PREFIX[0] && pk_bytes[1] == DID_AI1OAUTH_RSA_PREFIX[1] {
             match rsa_x509_pub_parse(&pk_bytes[2..]) {
                 Ok(jwk) => {
                     vm_type = "JsonWebKey2020".to_string();
@@ -173,8 +173,8 @@ impl DIDResolver for DIDScraiOAuth {
                 }
                 Err(err) => return (ResolutionMetadata::from_error(&err.to_string()), None, None),
             }
-        } else if pk_bytes[0] == DID_SCRAIOAUTH_BLS12381_G2_PREFIX[0]
-            && pk_bytes[1] == DID_SCRAIOAUTH_BLS12381_G2_PREFIX[1]
+        } else if pk_bytes[0] == DID_AI1OAUTH_BLS12381_G2_PREFIX[0]
+            && pk_bytes[1] == DID_AI1OAUTH_BLS12381_G2_PREFIX[1]
         {
             {
                 if pk_bytes.len() - 2 != 96 {
@@ -236,9 +236,9 @@ impl DIDResolver for DIDScraiOAuth {
     }
 }
 
-impl DIDMethod for DIDScraiOAuth {
+impl DIDMethod for DIDAi1OAuth {
     fn name(&self) -> &'static str {
-        "scraioauth"
+        "ai1oauth"
     }
 
     fn generate(&self, source: &Source) -> Option<String> {
@@ -275,7 +275,7 @@ pub fn fragment_from_jwk(jwk: &JWK) -> Option<String> {
                 "Ed25519" => {
                     multibase::encode(
                             multibase::Base::Base58Btc,
-                            [DID_SCRAIOAUTH_ED25519_PREFIX.to_vec(), params.public_key.0.clone()]
+                            [DID_AI1OAUTH_ED25519_PREFIX.to_vec(), params.public_key.0.clone()]
                                 .concat(),
                         )
                 }
@@ -283,13 +283,13 @@ pub fn fragment_from_jwk(jwk: &JWK) -> Option<String> {
                     multibase::encode(
                             multibase::Base::Base58Btc,
                             [
-                                DID_SCRAIOAUTH_BLS12381_G2_PREFIX.to_vec(),
+                                DID_AI1OAUTH_BLS12381_G2_PREFIX.to_vec(),
                                 params.public_key.0.clone(),
                             ]
                             .concat(),
                         )
                 }
-                //_ => return Some(Err(DIDScraiOAuthError::UnsupportedCurve(params.curve.clone()))),
+                //_ => return Some(Err(DIDAi1oauthError::UnsupportedCurve(params.curve.clone()))),
                 _ => return None,
             }
         }
@@ -309,7 +309,7 @@ pub fn fragment_from_jwk(jwk: &JWK) -> Option<String> {
                     multibase::encode(
                             multibase::Base::Base58Btc,
                             [
-                                DID_SCRAIOAUTH_SECP256K1_PREFIX.to_vec(),
+                                DID_AI1OAUTH_SECP256K1_PREFIX.to_vec(),
                                 pk.to_encoded_point(true).as_bytes().to_vec(),
                             ]
                             .concat(),
@@ -325,7 +325,7 @@ pub fn fragment_from_jwk(jwk: &JWK) -> Option<String> {
                     multibase::encode(
                             multibase::Base::Base58Btc,
                             [
-                                DID_SCRAIOAUTH_P256_PREFIX.to_vec(),
+                                DID_AI1OAUTH_P256_PREFIX.to_vec(),
                                 pk.to_encoded_point(true).as_bytes().to_vec(),
                             ]
                             .concat(),
@@ -339,10 +339,10 @@ pub fn fragment_from_jwk(jwk: &JWK) -> Option<String> {
                     };
                     multibase::encode(
                             multibase::Base::Base58Btc,
-                            [DID_SCRAIOAUTH_P384_PREFIX.to_vec(), pk_bytes].concat(),
+                            [DID_AI1OAUTH_P384_PREFIX.to_vec(), pk_bytes].concat(),
                         )
                 }
-                //_ => return Some(Err(DIDScraiOAuthError::UnsupportedCurve(params.curve.clone()))),
+                //_ => return Some(Err(DIDAi1oauthError::UnsupportedCurve(params.curve.clone()))),
                 _ => return None,
             }
         }
@@ -350,10 +350,10 @@ pub fn fragment_from_jwk(jwk: &JWK) -> Option<String> {
             let der = simple_asn1::der_encode(&params.to_public()).ok()?;
             multibase::encode(
                     multibase::Base::Base58Btc,
-                    [DID_SCRAIOAUTH_RSA_PREFIX.to_vec(), der.to_vec()].concat(),
+                    [DID_AI1OAUTH_RSA_PREFIX.to_vec(), der.to_vec()].concat(),
                 )
         }
-        _ => return None, // _ => return Some(Err(DIDScraiOAuthError::UnsupportedKeyType)),
+        _ => return None, // _ => return Some(Err(DIDAi1oauthError::UnsupportedKeyType)),
     };
     Some(fragment)
 }
@@ -374,11 +374,11 @@ mod tests {
         use std::{env, process::Command, thread, time::Duration};
 
         // set the resolver's URI in the environment if not already set
-        if env::var("SCRAIOAUTH_DID_RESOLUTION_URI").is_err() {
-            env::set_var("SCRAIOAUTH_DID_RESOLUTION_URI", "http://localhost:3000/did/");
+        if env::var("AI1OAUTH_DID_RESOLUTION_URI").is_err() {
+            env::set_var("AI1OAUTH_DID_RESOLUTION_URI", "http://localhost:3000/did/");
         }
 
-        eprintln!("Using resolution URI {}", env::var("SCRAIOAUTH_DID_RESOLUTION_URI").unwrap());
+        eprintln!("Using resolution URI {}", env::var("AI1OAUTH_DID_RESOLUTION_URI").unwrap());
 
         // start local did-resolution server
         let path = "../testutils/didresolver";
@@ -393,7 +393,7 @@ mod tests {
         if started.is_ok() {
             eprintln!("localhost DID resolver started");
         } else {
-            eprintln!("Failed to start localhost DID resolver, did-scraioauth tests will fail.");
+            eprintln!("Failed to start localhost DID resolver, did-ai1oauth tests will fail.");
             eprintln!("{:?}", started);
         }
 
@@ -423,17 +423,17 @@ mod tests {
     #[tokio::test]
     async fn from_did_github() {
         let pattern = "github:githubunittestuser";
-        let did = format!("did:scraioauth:{pattern}");
+        let did = format!("did:ai1oauth:{pattern}");
         let pubkey = "zQ3shokFTS3brHcDQrn82RUDfCZESWL1ZdCEJwekUDPQiYBme";
         testing_add_did(&did, pubkey).await;
 
-        let (res_meta, _doc, _meta) = DIDScraiOAuth
+        let (res_meta, _doc, _meta) = DIDAi1OAuth
             .resolve(&did, &ResolutionInputMetadata::default()).await;
         assert_eq!(res_meta.error, None);
 
         let vm = format!("{did}#{pubkey}");
         let (res_meta, object, _meta) =
-            dereference(&DIDScraiOAuth, &vm, &DereferencingInputMetadata::default()).await;
+            dereference(&DIDAi1OAuth, &vm, &DereferencingInputMetadata::default()).await;
         assert_eq!(res_meta.error, None);
 
         let vm = match object {
@@ -443,12 +443,12 @@ mod tests {
         let key = vm.public_key_jwk.unwrap();
 
         // convert back to DID from JWK
-        let did1 = DIDScraiOAuth.generate(&Source::KeyAndPattern(&key, pattern)).unwrap();
+        let did1 = DIDAi1OAuth.generate(&Source::KeyAndPattern(&key, pattern)).unwrap();
         assert_eq!(did1, did);
     }
 
     #[tokio::test]
-    async fn credential_prove_verify_did_scraioauth_github() {
+    async fn credential_prove_verify_did_ai1oauth_github() {
         use ssi_vc::{get_verification_method, Credential, Issuer, LinkedDataProofOptions, URI};
 
         let vc_str = r###"{
@@ -460,20 +460,20 @@ mod tests {
                 "VerifiableCredential", 
                 "scrai:OAuthUsernameCredential"
             ],
-            "issuer": "did:scraioauth:github:ssiunittest",
+            "issuer": "did:ai1oauth:github:ssiunittest",
             "issuanceDate": "2021-02-18T20:17:46Z",
             "credentialSubject": {
-                "id": "did:scraioauth:github:ssiunittest"
+                "id": "did:ai1oauth:github:ssiunittest"
             }
         }"###;
         let mut vc: Credential = Credential::from_json_unsigned(vc_str).unwrap();
 
         let key = JWK::generate_secp256k1().unwrap();
         let pubkey = fragment_from_jwk(&key).unwrap();
-        let did = DIDScraiOAuth.generate(&Source::KeyAndPattern(&key, "github:ssiunittest")).unwrap();
+        let did = DIDAi1OAuth.generate(&Source::KeyAndPattern(&key, "github:ssiunittest")).unwrap();
         testing_add_did(&did, &pubkey).await;
         
-        let verification_method = get_verification_method(&did, &DIDScraiOAuth).await.unwrap();
+        let verification_method = get_verification_method(&did, &DIDAi1OAuth).await.unwrap();
         let mut issue_options = LinkedDataProofOptions::default();
         let mut context_loader = ssi_json_ld::ContextLoader::default();
         vc.issuer = Some(Issuer::URI(URI::String(did.clone())));
@@ -482,20 +482,20 @@ mod tests {
 
         issue_options.verification_method = Some(URI::String(verification_method));
         let proof = vc
-            .generate_proof(&key, &issue_options, &DIDScraiOAuth, &mut context_loader)
+            .generate_proof(&key, &issue_options, &DIDAi1OAuth, &mut context_loader)
             .await
             .unwrap();
         println!("{}", serde_json::to_string_pretty(&proof).unwrap());
         vc.add_proof(proof);
         vc.validate().unwrap();
-        let verification_result = vc.verify(None, &DIDScraiOAuth, &mut context_loader).await;
+        let verification_result = vc.verify(None, &DIDAi1OAuth, &mut context_loader).await;
         println!("{:#?}", verification_result);
         assert!(verification_result.errors.is_empty());
 
         // test that issuer is verified
         vc.issuer = Some(Issuer::URI(URI::String("did:example:bad".to_string())));
         assert!(!vc
-            .verify(None, &DIDScraiOAuth, &mut context_loader)
+            .verify(None, &DIDAi1OAuth, &mut context_loader)
             .await
             .errors
             .is_empty());
