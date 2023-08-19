@@ -29,8 +29,10 @@ function did_resolve(req, res, next) {
     console.log(`Resolving did=${req.query?.did}`);
 
     if (!req.query || !req.query.did || !registry[req.query.did]) {
+        console.log(`Responding 404 on did resolution of ${req.query?.did}`);
         res.sendStatus(404);
     } else {
+        console.log(`Responding 200 on did resolution of ${req.query?.did} --> ${registry[req.query.did]}`);
         res.send(registry[req.query.did]);
     }
 }
