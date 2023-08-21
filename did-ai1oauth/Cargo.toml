@@ -5,7 +5,7 @@ authors = ["MIM Holdings, LLC"]
 edition = "2021"
 license = "Apache-2.0"
 keywords = ["ssi", "did"]
-description = "did:scraioauth DID method, using the ssi crate"
+description = "did:ai1oauth DID method, using the ssi crate"
 repository = "https://github.com/ai1xyz/ssi/"
 
 [features]
